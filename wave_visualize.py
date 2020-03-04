@@ -55,15 +55,17 @@ class HBMonitorWindow(QMainWindow):
         self.fig.zoom = max(-2, self.fig.zoom)
         self.fig.zoom_graph()
 
-    def addData_callbackFunc(self, sample, mlii, v5):
-        self.fig.addData(sample, mlii, v5)
+    def addData_callbackFunc(self, raw_sample, raw_mlii, raw_v5, annot_sample, annot_type):
+        self.fig.addData(raw_sample, raw_mlii, raw_v5, annot_sample, annot_type)
 
 
 class MonitorFigure(FigureCanvasQTAgg, TimedAnimation):
     def __init__(self):
-        self.data_sample = []
-        self.data_mlii = []
-        self.data_v5 = []
+        self.raw_sample = []
+        self.raw_mlii = []
+        self.raw_v5 = []
+        self.annot_sample = []
+        self.annot_type = []
 
         self.offset = 0
         self.xlim = 1000
@@ -76,7 +78,8 @@ class MonitorFigure(FigureCanvasQTAgg, TimedAnimation):
         self.ax_mlii.set_ylabel("MLII")
         self.line_mlii = Line2D([], [], color="lime", linewidth=0.8)
         self.ax_mlii.add_line(self.line_mlii)
-        self.ax_mlii.set_ylim(850, 1300)
+        self.ax_mlii.scatter([], [], color="white")
+        self.ax_mlii.set_ylim(850, 1500)
         self.ax_mlii.set_xlim(0, self.xlim)
 
         self.ax_v5 = self.fig.add_subplot(1, 2, 2)
@@ -86,13 +89,13 @@ class MonitorFigure(FigureCanvasQTAgg, TimedAnimation):
         self.ax_v5.set_ylabel("V5")
         self.line_v5 = Line2D([], [], color="seagreen")
         self.ax_v5.add_line(self.line_v5)
-        self.ax_v5.set_ylim(850, 1300)
+        self.ax_v5.set_ylim(850, 1500)
         self.ax_v5.set_xlim(0, self.xlim)
 
         self.zoom = 0
 
         FigureCanvasQTAgg.__init__(self, self.fig)
-        TimedAnimation.__init__(self, self.fig, interval=1, blit=True)
+        TimedAnimation.__init__(self, self.fig, interval=5, blit=True)
 
     def new_frame_seq(self):
         return iter(range(1))
@@ -103,20 +106,19 @@ class MonitorFigure(FigureCanvasQTAgg, TimedAnimation):
             line.set_data([], [])
         return
 
-    def addData(self, sample, mlii, v5):
-        self.data_sample.append(sample)
-        self.data_mlii.append(mlii)
-        self.data_v5.append(v5)
-        # if len(self.data_sample) > self.xlim:
-        #     self.data_sample.pop(0)
-        #     self.data_mlii.pop(0)
-        #     self.data_v5.pop(0)
+    def addData(self, raw_sample, raw_mlii, raw_v5, annot_sample, annot_type):
+        self.raw_sample.append(raw_sample)
+        self.raw_mlii.append(raw_mlii)
+        self.raw_v5.append(raw_v5)
+        if annot_sample != -1 and annot_type != "":
+            self.annot_sample.append(annot_sample)
+            self.annot_type.append(annot_type)
+            self.annotate()
 
     def set_axis(self):
-        self.offset = max(0, (max(self.data_sample) - self.xlim))
+        self.offset = max(0, (max(self.raw_sample) - self.xlim))
         self.ax_mlii.set_xlim(self.offset, self.xlim + self.offset)
         self.ax_v5.set_xlim(self.offset, self.xlim + self.offset)
-        self.draw()
 
     def zoom_graph(self):
         if self.zoom == -2:
@@ -129,18 +131,25 @@ class MonitorFigure(FigureCanvasQTAgg, TimedAnimation):
             self.xlim = 1000
             self.set_axis()
         elif self.zoom == 1:
-            self.xlim = 250
+            self.xlim = 500
             self.set_axis()
         elif self.zoom == 2:
+            self.xlim = 250
+            self.set_axis()
+        elif self.zoom == 3:
             self.xlim = 100
             self.set_axis()
 
     def move(self):
-        if max(self.data_sample) > self.xlim:
-            self.offset = max(self.data_sample) - self.xlim
+        self.draw()
+        if max(self.raw_sample) > self.xlim:
+            self.offset = max(self.raw_sample) - self.xlim
             self.ax_mlii.set_xlim(self.offset, self.xlim + self.offset)
             self.ax_v5.set_xlim(self.offset, self.xlim + self.offset)
-            self.draw()
+
+    def annotate(self):
+        self.ax_mlii.scatter(self.annot_sample[-1] + 20, self.raw_mlii[int(self.annot_sample[-1])] + 50,
+                             s=100, marker=f"${self.annot_type[-1]}$", color="white")
 
     def _step(self, *args):
         # Extends the _step() method for the TimedAnimation class.
@@ -154,35 +163,51 @@ class MonitorFigure(FigureCanvasQTAgg, TimedAnimation):
 
     def _draw_frame(self, framedata):
         self.move()
-        self.line_mlii.set_data(self.data_sample, self.data_mlii)
-        self.line_v5.set_data(self.data_sample, self.data_v5)
+
+        self.line_mlii.set_data(self.raw_sample, self.raw_mlii)
+        self.line_v5.set_data(self.raw_sample, self.raw_v5)
+
         self._drawn_artists = [self.line_mlii, self.line_v5]
 
 
 class Communicate(QObject):
-    data_signal = pyqtSignal(float, float, float)
+    data_signal = pyqtSignal(float, float, float, float, str)
 
 
 def read_data():
-    raw_df = pd.read_csv("data_files/raw/100.csv")
+    raw_df = pd.read_csv("data_files/raw/101.csv")
+    annotations_df = pd.read_csv("data_files/annotations/csv/101annotations.csv")
+
+    x_annot_sample = annotations_df.iloc[:, 2].to_numpy()
+    y_annot_type = annotations_df.iloc[:, 3].to_numpy()
 
     x_sample = raw_df.iloc[:, 0].to_numpy()
     y_mlii = raw_df.iloc[:, 1].to_numpy()
     y_v5 = raw_df.iloc[:, 2].to_numpy()
-    return x_sample, y_mlii, y_v5
+
+    return [x_sample, y_mlii, y_v5], [x_annot_sample, y_annot_type]
 
 
 def dataSendLoop(addData_callbackFunc):
     src = Communicate()
     src.data_signal.connect(addData_callbackFunc)
+
     read = False
     if not read:
-        data_sample, data_mlii, data_v5 = read_data()
+        data_raw, data_annot = read_data()
         read = True
 
-    for i in range(len(data_sample)):
+    sample_no = 0
+
+    for i in range(len(data_raw[0])):
         time.sleep(0.008)
-        src.data_signal.emit(data_sample[i], data_mlii[i], data_v5[i])
+
+        if data_annot[0][sample_no] == i:
+            src.data_signal.emit(data_raw[0][i], data_raw[1][i], data_raw[2][i],
+                                 data_annot[0][sample_no], data_annot[1][sample_no])
+            sample_no += 1
+        else:
+            src.data_signal.emit(data_raw[0][i], data_raw[1][i], data_raw[2][i], -1, "")
 
 
 app = QApplication(sys.argv)
