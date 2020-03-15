@@ -207,7 +207,8 @@ def dataSendLoop(addData_callbackFunc):
                                  data_annot[0][sample_no], data_annot[1][sample_no])
             sample_no += 1
         else:
-            src.data_signal.emit(data_raw[0][i], data_raw[1][i], data_raw[2][i], -1, "")
+            src.data_signal.emit(data_raw[0][i], data_raw[1][i], data_raw[2][i],
+                                 -1, "")
 
 
 app = QApplication(sys.argv)
