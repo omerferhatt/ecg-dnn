@@ -5,7 +5,7 @@ import sys
 
 from tqdm import tqdm
 
-from txt2csv import txt2csv
+from data_files.txt2csv import txt2csv
 
 parser = argparse.ArgumentParser(
     prog="txt2csv",
@@ -16,7 +16,7 @@ parser.add_argument("-save", "--s", type=str, default="annotations/csv", help="S
 
 args = parser.parse_args(["-save", "annotations/csv"])
 
-os.chdir("data_files")
+os.chdir("")
 save_dir = args.s
 
 raw_csv_list = glob.glob("*/*.csv", recursive=True)

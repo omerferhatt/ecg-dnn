@@ -2,14 +2,15 @@ import sys
 import threading
 import time
 
-import matplotlib
 import pandas as pd
-from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5.QtWidgets import QMainWindow, QFrame, QGridLayout, QApplication, QPushButton
+import matplotlib
 from matplotlib.animation import TimedAnimation
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 from matplotlib.lines import Line2D
+
+from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtWidgets import QMainWindow, QFrame, QGridLayout, QApplication, QPushButton
 
 matplotlib.use("Qt5Agg")
 
