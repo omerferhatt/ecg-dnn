@@ -1,3 +1,5 @@
+scikit-learn
+tensorflow
 PyQt5
 matplotlib
 tqdm

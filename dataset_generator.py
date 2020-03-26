@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+from sklearn.preprocessing import LabelEncoder
+
 
 class DatasetGenerator:
     def __init__(self, raw_path, annot_path, beat_width):
@@ -19,15 +21,14 @@ class DatasetGenerator:
         x = []
         for beat in self.annot[self.pos_margin:self.neg_margin, 2]:
             x.append(self.raw_data[int(beat) - self.beat_width: int(beat) + self.beat_width, 1])
-        return np.array(x)
+        x = np.array(x)
+        x = x[:, :, np.newaxis]
+        return x
 
     def get_y(self):
         y = []
         for beat in self.annot[self.pos_margin:self.neg_margin, 3]:
             y.append(beat)
-        return np.array(y)
-
-
-b_gen = DatasetGenerator(raw_path="data_files/raw/100.csv",
-                         annot_path="data_files/annotations/csv/100annotations.csv",
-                         beat_width=64)
+        le = LabelEncoder()
+        y = le.fit_transform(np.array(y))
+        return y
