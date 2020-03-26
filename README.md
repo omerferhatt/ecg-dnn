@@ -31,10 +31,9 @@ Project hierarchy is below with subfolders and files:
 		       |-- (45 more files ...)
 		       |-- 234annotations.txt
 
-## Required Libraries
+## Requirements
 
- - Ubuntu 18.04
- - Python 3.7.x
+ - Tested on Ubuntu 18.04 and with Python 3.7.x
  - Anaconda 4.8.3 (or Miniconda) 
  - Python Libraries
 	 - NumPy
@@ -50,3 +49,7 @@ Project hierarchy is below with subfolders and files:
 ![Heartbeat wave visualizing demo](https://i.hizliresim.com/2oPqSG.png)
 
 Sample monitor is above.
+
+### Data files
+
+Data files uploaded to Google Drive: https://drive.google.com/file/d/18cUJOHtxICzj-nmxhZk1fL4cbFJGUP6p/view?usp=sharing
