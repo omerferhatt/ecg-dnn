@@ -3,6 +3,7 @@
 Project hierarchy is below with subfolders and files:  
   
 	 ecg-anomaly-detection 
+	 	 |-- LICENSE
 		 |-- .gitignore
 		 |-- main.py
 		 |-- dataset_generator.py
