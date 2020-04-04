@@ -5,5 +5,5 @@
 .idea/misc.xml
 .idea/modules.xml
 .idea/vcs.xml
-data_files/raw
-data_files/annotations
+data/raw
+data/annotations
