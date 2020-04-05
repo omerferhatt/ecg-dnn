@@ -20,12 +20,24 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #  SOFTWARE.
 
+#  MIT License
+#
+#
+#  Permission is hereby granted, free of charge, to any person obtaining a copy
+#  of this software and associated documentation files (the "Software"), to deal
+#  in the Software without restriction, including without limitation the rights
+#  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#  copies of the Software, and to permit persons to whom the Software is
+#  furnished to do so, subject to the following conditions:
+#
+#
+import numpy as np
 import tensorflow as tf
 from model import model
 from data.data_generator import DatasetGenerator
 from data import *
 
-BEAT_WIDTH = 128
+BEAT_WIDTH = 64
 
 model = model.create_model(beat_width=BEAT_WIDTH)
 
@@ -36,6 +48,12 @@ data_generator = DatasetGenerator(raw_path="data/raw",
 
 tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="model/logs", histogram_freq=1)
 
-model.fit(data_generator.raw_data, data_generator.annot_data,
-          epochs=10, batch_size=20,
+input_upper = data_generator.raw_data[0]
+input_upper_aux = np.array([data_generator.rythm_data, data_generator.signal_data[0]]).T
+
+input_lower = data_generator.raw_data[1]
+input_lower_aux = np.array([data_generator.rythm_data, data_generator.signal_data[1]]).T
+
+model.fit([input_upper, input_lower, input_upper_aux, input_lower_aux], data_generator.annot_data,
+          epochs=10, batch_size=10,
           callbacks=[tensorboard_callback])

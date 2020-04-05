@@ -20,13 +20,25 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #  SOFTWARE.
 
+#  MIT License
+#
+#
+#  Permission is hereby granted, free of charge, to any person obtaining a copy
+#  of this software and associated documentation files (the "Software"), to deal
+#  in the Software without restriction, including without limitation the rights
+#  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#  copies of the Software, and to permit persons to whom the Software is
+#  furnished to do so, subject to the following conditions:
+#
+#
 import os
 import glob
 
 import numpy as np
 import pandas as pd
-
 from sklearn.preprocessing import LabelEncoder
+
+from data import beat_annots, non_beat_annots
 
 
 class DatasetGenerator:
@@ -43,14 +55,13 @@ class DatasetGenerator:
 
         self.margin = (max(self.beat_width, 64) // 64) + 1
 
-        self.raw_data, self.annot_data = self.get_data_to_arr()
+        self.raw_data, self.signal_data, self.annot_data, self.rythm_data = self.get_data_to_arr()
         self.shuffle_data()
 
     def get_all_csv(self):
         try:
             raw_files = glob.glob(os.path.join(self.raw_path, "*"))
             annot_files = glob.glob(os.path.join(self.annot_path, "*"))
-
             if len(raw_files) != len(annot_files):
                 raise ValueError
             else:
@@ -62,28 +73,66 @@ class DatasetGenerator:
             print(e, "Raw files don't match with annotations")
 
     def get_data_to_arr(self):
-        raw_arr = []
+        raw_upper_arr = []
+        raw_lower_arr = []
         annot_arr = []
+        rythm_arr = []
+        upper_signal_arr = []
+        lower_signal_arr = []
+
+        rythm = None
+        upper_signal_type = None
+        lower_signal_type = None
 
         for patient in range(self.total_patient):
-            raw_data = pd.read_csv(self.raw_files[patient]).to_numpy()
+            raw_data = pd.read_csv(self.raw_files[patient])
+            upper_signal_type = raw_data.columns[1].replace("'", "")
+            lower_signal_type = raw_data.columns[2].replace("'", "")
+            raw_data = raw_data.to_numpy()
+
             annot_data = pd.read_csv(self.annot_files[patient]).to_numpy()
 
-            for beat in annot_data[self.margin:-self.margin, [2, 3]]:
-                raw = np.fft.fft(raw_data[int(beat[0]) - self.beat_width: int(beat[0]) + self.beat_width, 1])
-                raw_arr.append(raw)
-                annot_arr.append(beat[1])
+            for sample, typ, aux in annot_data[:, [2, 3, 7]]:
+                if typ in non_beat_annots:
+                    if typ == "+":
+                        rythm = aux[1:]
+                if typ in beat_annots:
+                    raw_upper, raw_lower = raw_data[int(sample) - self.beat_width: int(sample) + self.beat_width,
+                                           1: 3].T
+                    if len(raw_upper) == 2 * self.beat_width:
+                        raw_upper_arr.append(np.fft.fft(raw_upper))
+                        raw_lower_arr.append(np.fft.fft(raw_lower))
+                        annot_arr.append(typ)
+                        rythm_arr.append(rythm)
+                        upper_signal_arr.append(upper_signal_type)
+                        lower_signal_arr.append(lower_signal_type)
 
-        raw_arr = np.array(raw_arr)
-        raw_arr = raw_arr[:, :, np.newaxis]
+        raw_upper_arr = np.array(raw_upper_arr)
+        raw_upper_arr = raw_upper_arr[:, :, np.newaxis]
 
-        le = LabelEncoder()
-        annot_arr = le.fit_transform(np.array(annot_arr))
+        raw_lower_arr = np.array(raw_lower_arr)
+        raw_lower_arr = raw_lower_arr[:, :, np.newaxis]
 
-        return raw_arr, annot_arr
+        le_annot = LabelEncoder()
+        annot_arr = le_annot.fit_transform(np.array(annot_arr))
+
+        le_rythm = LabelEncoder()
+        rythm_arr = le_rythm.fit_transform(np.array(rythm_arr))
+
+        le_upper = LabelEncoder()
+        upper_signal_arr = le_upper.fit_transform(np.array(upper_signal_arr))
+
+        le_lower = LabelEncoder()
+        lower_signal_arr = le_lower.fit_transform(np.array(lower_signal_arr))
+
+        return [raw_upper_arr, raw_lower_arr], [upper_signal_arr, lower_signal_arr], annot_arr, rythm_arr
 
     def shuffle_data(self):
         np.random.seed(self.random_seed)
         np.random.shuffle(self.raw_data)
         np.random.seed(self.random_seed)
+        np.random.shuffle(self.signal_data)
+        np.random.seed(self.random_seed)
         np.random.shuffle(self.annot_data)
+        np.random.seed(self.random_seed)
+        np.random.shuffle(self.rythm_data)

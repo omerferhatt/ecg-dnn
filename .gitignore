@@ -7,3 +7,9 @@
 .idea/vcs.xml
 data/raw
 data/annotations
+.idea/copyright/
+.idea/git_toolbox_prj.xml
+__pycache__/
+data/__pycache__/
+model/__pycache__/
+model/logs/
