@@ -75,8 +75,8 @@ Sample monitor is above.
 
 #### Cloud link of project files
 
-:heavy_check_mark: Data files uploaded
-:heavy_check_mark: Trained models uploaded
+- :heavy_check_mark: Data files uploaded
+- :heavy_check_mark: Trained models uploaded
 
 Link: https://drive.google.com/open?id=188bqrXPn23Ad6FJxwbBDyfhJpo8rwUdV
 
