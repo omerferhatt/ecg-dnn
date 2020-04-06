@@ -20,15 +20,21 @@ Project hierarchy is below with subfolders and files:
   
 	 ecg-anomaly-detection 
 	 	 |-- LICENSE
-		 |-- .gitignore
+	 	 |-- README.md
+		 |-- requirements.txt
 		 |-- main.py
-		 |-- dataset_generator.py
+		 |-- train.py
 		 |-- wave_visualize.py
-		 |-- README.md
 		 \-- model
+		   |-- __init__.py
 		   |-- model.py
-		   |-- train.py
-		 \-- data_files
+		   \-- trained_models
+		     |-- (trained models, going to be saved here)
+		   \-- logs
+		     |-- (tensorboard logs, going to be saved here)
+		 \-- data
+		   |-- __init__.py
+		   |-- data_generator.py
 		   |-- txt2csv.py
 		   |-- convert_all_txt2csv.py
 		   \-- raw
@@ -67,6 +73,17 @@ Project hierarchy is below with subfolders and files:
 
 Sample monitor is above.
 
-#### Data files
+#### Cloud link of project files
 
-Data files uploaded to Google Drive: https://drive.google.com/file/d/18cUJOHtxICzj-nmxhZk1fL4cbFJGUP6p/view?usp=sharing
+:heavy_check_mark: Data files uploaded
+:heavy_check_mark: Trained models uploaded
+
+Link: https://drive.google.com/open?id=188bqrXPn23Ad6FJxwbBDyfhJpo8rwUdV
+
+
+#### Contact
+
+For more further questions
+
+- E-mail: omerf.sarioglu@gmail.com
+- LinkedIn: omerfsarioglu
