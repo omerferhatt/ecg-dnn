@@ -22,17 +22,23 @@
 
 import numpy as np
 import tensorflow as tf
+from tensorflow.keras.utils import plot_model
+
 from model import model
 from data.data_generator import DatasetGenerator
 
 BEAT_WIDTH = 64
+EPOCH = 15
+BATCH_SIZE = 50
 
 model = model.create_model(beat_width=BEAT_WIDTH)
+plot_model(model, show_shapes=True, dpi=300)
+model.summary()
 
 data_generator = DatasetGenerator(raw_path="data/raw",
                                   annot_path="data/annotations/csv",
                                   beat_width=BEAT_WIDTH,
-                                  random_seed=100)
+                                  random_seed=50)
 
 tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="model/logs", histogram_freq=1)
 
@@ -40,5 +46,5 @@ input_signal = data_generator.raw_data
 input_aux = np.array(data_generator.rythm_data)
 
 model.fit([input_signal, input_aux], data_generator.annot_data,
-          epochs=15, batch_size=50,
+          epochs=EPOCH, batch_size=BATCH_SIZE,
           callbacks=[tensorboard_callback])
