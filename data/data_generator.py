@@ -31,6 +31,17 @@
 #  furnished to do so, subject to the following conditions:
 #
 #
+#  MIT License
+#
+#
+#  Permission is hereby granted, free of charge, to any person obtaining a copy
+#  of this software and associated documentation files (the "Software"), to deal
+#  in the Software without restriction, including without limitation the rights
+#  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#  copies of the Software, and to permit persons to whom the Software is
+#  furnished to do so, subject to the following conditions:
+#
+#
 import os
 import glob
 
@@ -100,17 +111,19 @@ class DatasetGenerator:
                     raw_upper, raw_lower = raw_data[int(sample) - self.beat_width: int(sample) + self.beat_width,
                                            1: 3].T
                     if len(raw_upper) == 2 * self.beat_width:
-                        raw_upper_arr.append(np.fft.fft(raw_upper))
-                        raw_lower_arr.append(np.fft.fft(raw_lower))
+                        raw_upper_arr.append(raw_upper)
+                        raw_lower_arr.append(raw_lower)
                         annot_arr.append(typ)
                         rythm_arr.append(rythm)
                         upper_signal_arr.append(upper_signal_type)
                         lower_signal_arr.append(lower_signal_type)
 
         raw_upper_arr = np.array(raw_upper_arr)
+        raw_upper_arr = self.normalize(raw_upper_arr)
         raw_upper_arr = raw_upper_arr[:, :, np.newaxis]
 
         raw_lower_arr = np.array(raw_lower_arr)
+        raw_lower_arr = self.normalize(raw_lower_arr)
         raw_lower_arr = raw_lower_arr[:, :, np.newaxis]
 
         le_annot = LabelEncoder()
@@ -136,3 +149,8 @@ class DatasetGenerator:
         np.random.shuffle(self.annot_data)
         np.random.seed(self.random_seed)
         np.random.shuffle(self.rythm_data)
+
+    @staticmethod
+    def normalize(arr):
+        norm_arr = (arr - np.mean(arr)) / np.std(arr)
+        return norm_arr
