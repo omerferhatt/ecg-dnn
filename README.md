@@ -4,11 +4,11 @@ This project aimed to classify the heart beat types with the 1D-CNN model traine
 
 ## Current status
 
-| Status                                           |      Purpose  |
-|--------------------------------------------------|:-------------:|
-| <ul><li> - [x]</li></ul>                         |  left-aligned |
-| <ul><li> - []</li></ul>                          |    centered   |
-| <ul><li> - []</li></ul>                          | right-aligned |
+| Status                            |      Purpose  |
+|:---------------------------------:|:-------------:|
+| [checkbox:checked]                |  left-aligned |
+| [checkbox:unchecked]              |    centered   |
+| [checkbox:unchecked]              | right-aligned |
 
 
 
