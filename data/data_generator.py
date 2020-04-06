@@ -31,17 +31,6 @@
 #  furnished to do so, subject to the following conditions:
 #
 #
-#  MIT License
-#
-#
-#  Permission is hereby granted, free of charge, to any person obtaining a copy
-#  of this software and associated documentation files (the "Software"), to deal
-#  in the Software without restriction, including without limitation the rights
-#  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#  copies of the Software, and to permit persons to whom the Software is
-#  furnished to do so, subject to the following conditions:
-#
-#
 import os
 import glob
 
@@ -126,6 +115,8 @@ class DatasetGenerator:
         raw_lower_arr = self.normalize(raw_lower_arr)
         raw_lower_arr = raw_lower_arr[:, :, np.newaxis]
 
+        raw_signal = np.concatenate([raw_upper_arr, raw_lower_arr], axis=-1)
+
         le_annot = LabelEncoder()
         annot_arr = le_annot.fit_transform(np.array(annot_arr))
 
@@ -138,7 +129,7 @@ class DatasetGenerator:
         le_lower = LabelEncoder()
         lower_signal_arr = le_lower.fit_transform(np.array(lower_signal_arr))
 
-        return [raw_upper_arr, raw_lower_arr], [upper_signal_arr, lower_signal_arr], annot_arr, rythm_arr
+        return raw_signal, [upper_signal_arr, lower_signal_arr], annot_arr, rythm_arr
 
     def shuffle_data(self):
         np.random.seed(self.random_seed)

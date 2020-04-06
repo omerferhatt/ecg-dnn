@@ -1,4 +1,18 @@
-## Project Directory Hierarchy  
+# ECG Heartbeat Classification with 1D-CNN
+
+This project aimed to classify the heart beat types with the 1D-CNN model trained with the MIT-BIH dataset.
+
+## Current status
+
+| Status                                           |      Purpose  |
+|--------------------------------------------------|:-------------:|
+| <ul><li> - [x]</li></ul>                         |  left-aligned |
+| <ul><li> - []</li></ul>                          |    centered   |
+| <ul><li> - []</li></ul>                          | right-aligned |
+
+
+
+### Project Directory Hierarchy  
   
 Project hierarchy is below with subfolders and files:  
   
@@ -32,7 +46,7 @@ Project hierarchy is below with subfolders and files:
 		       |-- (45 more files ...)
 		       |-- 234annotations.txt
 
-## Requirements
+### Requirements
 
  - Tested on Ubuntu 18.04 and with Python 3.7.x
  - Anaconda 4.8.3 (or Miniconda) 
@@ -51,6 +65,6 @@ Project hierarchy is below with subfolders and files:
 
 Sample monitor is above.
 
-### Data files
+#### Data files
 
 Data files uploaded to Google Drive: https://drive.google.com/file/d/18cUJOHtxICzj-nmxhZk1fL4cbFJGUP6p/view?usp=sharing
