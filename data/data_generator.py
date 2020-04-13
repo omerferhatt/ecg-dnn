@@ -70,8 +70,6 @@ class DatasetGenerator:
         lower_signal_arr = []
 
         rythm = None
-        upper_signal_type = None
-        lower_signal_type = None
 
         for patient in range(self.total_patient):
             raw_data = pd.read_csv(self.raw_files[patient])
@@ -87,7 +85,7 @@ class DatasetGenerator:
                         rythm = aux[1:]
                 if typ in beat_annots:
                     raw_upper, raw_lower = raw_data[int(sample) - self.beat_width: int(sample) + self.beat_width,
-                                           1: 3].T
+                                                    1:3].T
                     if len(raw_upper) == 2 * self.beat_width:
                         raw_upper_arr.append(raw_upper)
                         raw_lower_arr.append(raw_lower)

@@ -21,7 +21,7 @@
 #  SOFTWARE.
 
 from tensorflow.keras.layers import Conv1D, MaxPooling1D
-from tensorflow.keras.layers import Flatten, Dense, Dropout
+from tensorflow.keras.layers import Flatten, Dense, Dropout, BatchNormalization
 from tensorflow.keras.layers import Input, Concatenate
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
@@ -36,12 +36,12 @@ def create_model(beat_width=64):
 
     concat_aux = aux_mlp(flatten, inp_aux)
 
-    ds2 = Dense(1024, activation="relu", name="dense_2")(concat_aux)
-    drop2 = Dropout(rate=0.2, name="drop_2")(ds2)
-    ds3 = Dense(512, activation="relu", name="dense_3")(drop2)
-    drop3 = Dropout(rate=0.2, name="drop_3")(ds3)
-    ds4 = Dense(256, activation="relu", name="dense_4")(drop3)
-    drop4 = Dropout(rate=0.15, name="drop_4")(ds4)
+    ds2 = Dense(512, activation="relu", name="dense_2")(concat_aux)
+    drop2 = Dropout(rate=0.25, name="drop_2")(ds2)
+    ds3 = Dense(256, activation="relu", name="dense_3")(drop2)
+    drop3 = Dropout(rate=0.20, name="drop_3")(ds3)
+    ds4 = Dense(128, activation="relu", name="dense_4")(drop3)
+    drop4 = Dropout(rate=0.20, name="drop_4")(ds4)
     out_ds5 = Dense(19, activation="softmax", name="output_dense_5")(drop4)
 
     model = Model(inputs=[inp_signal, inp_aux], outputs=out_ds5, name="ecg_model")
@@ -51,13 +51,17 @@ def create_model(beat_width=64):
 
 
 def signal_conv(inp):
-    c1 = Conv1D(128, kernel_size=11, activation="relu", name="conv1d_1")(inp)
-    mp1 = MaxPooling1D(pool_size=2, strides=2, name="max_pool_1")(c1)
+    c1 = Conv1D(128, kernel_size=9, activation="relu", name="conv1d_1")(inp)
+    norm1 = BatchNormalization(name="batch_norm_1")(c1)
+
+    mp1 = MaxPooling1D(pool_size=2, strides=2, name="max_pool_1")(norm1)
 
     c2 = Conv1D(128, kernel_size=9, activation="relu", name="conv1d_2")(mp1)
-    c3 = Conv1D(256, kernel_size=7, activation="relu", name="conv1d_3")(c2)
+    norm2 = BatchNormalization(name="batch_norm_2")(c2)
+    c3 = Conv1D(256, kernel_size=7, activation="relu", name="conv1d_3")(norm2)
+    norm3 = BatchNormalization(name="batch_norm_3")(c3)
 
-    mp2 = MaxPooling1D(pool_size=2, strides=2, name="max_pool_2")(c3)
+    mp2 = MaxPooling1D(pool_size=2, strides=2, name="max_pool_2")(norm3)
 
     c4 = Conv1D(256, kernel_size=7, activation="relu", name="conv1d_4")(mp2)
 
@@ -67,6 +71,6 @@ def signal_conv(inp):
 
 def aux_mlp(inp, inp_aux):
     con = Concatenate(name="concat_signal_aux")([inp, inp_aux])
-    ds1 = Dense(2048, activation="relu", name="dense_1")(con)
+    ds1 = Dense(1024, activation="relu", name="dense_1")(con)
     drop1 = Dropout(rate=0.25, name="drop_1")(ds1)
     return drop1
