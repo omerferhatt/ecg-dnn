@@ -68,7 +68,7 @@ def signal_conv(inp):
     c5 = Conv1D(256, kernel_size=7, activation="relu", name="conv1d_5")(mp2)
     norm5 = BatchNormalization(name="batch_norm_5")(c5)
     c6 = Conv1D(256, kernel_size=7, activation="relu", name="conv1d_6")(norm5)
-    norm6 = BatchNormalization(name="batch_norm_5")(c6)
+    norm6 = BatchNormalization(name="batch_norm_6")(c6)
 
     mp3 = MaxPooling1D(pool_size=2, strides=2, name="max_pool_3")(norm6)
 

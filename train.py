@@ -35,9 +35,9 @@ argp.add_argument("-a", "--annot-path", type=str, default="data/annotations/csv"
                   help="Path of signal annotations.")
 argp.add_argument("-b", "--batch-size", type=int, default=64,
                   help="Number of batch size.")
-argp.add_argument("-e", "--epoch", type=int, default=15,
+argp.add_argument("-e", "--epoch", type=int, default=10,
                   help="Number of epoch.")
-argp.add_argument("-B", "--beat-width", type=int, default=64,
+argp.add_argument("-B", "--beat-width", type=int, default=192,
                   help="Sample number of one beat.")
 argp.add_argument("-R", "--random-seed", type=int, default=5,
                   help="Enter `0` for non-random arrays.")
