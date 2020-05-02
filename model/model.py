@@ -54,23 +54,23 @@ def create_model(beat_width=64):
 
 
 def signal_conv(inp):
-    c1 = Conv1D(32, kernel_size=11, activation="relu", name="conv1d_1")(inp)
+    c1 = Conv1D(32, kernel_size=9, activation="relu", name="conv1d_1")(inp)
     norm1 = BatchNormalization(name="batch_norm_1")(c1)
-    c2 = Conv1D(32, kernel_size=9, activation="relu", name="conv1d_2")(norm1)
+    c2 = Conv1D(32, kernel_size=7, activation="relu", name="conv1d_2")(norm1)
     norm2 = BatchNormalization(name="batch_norm_2")(c2)
 
     mp1 = MaxPooling1D(pool_size=2, strides=2, name="max_pool_1")(norm2)
 
-    c3 = Conv1D(64, kernel_size=9, activation="relu", name="conv1d_3")(mp1)
+    c3 = Conv1D(64, kernel_size=7, activation="relu", name="conv1d_3")(mp1)
     norm3 = BatchNormalization(name="batch_norm_3")(c3)
-    c4 = Conv1D(64, kernel_size=7, activation="relu", name="conv1d_4")(norm3)
+    c4 = Conv1D(64, kernel_size=5, activation="relu", name="conv1d_4")(norm3)
     norm4 = BatchNormalization(name="batch_norm_4")(c4)
 
     mp2 = MaxPooling1D(pool_size=2, strides=2, name="max_pool_2")(norm4)
 
-    c5 = Conv1D(128, kernel_size=7, activation="relu", name="conv1d_5")(mp2)
+    c5 = Conv1D(128, kernel_size=5, activation="relu", name="conv1d_5")(mp2)
     norm5 = BatchNormalization(name="batch_norm_5")(c5)
-    c6 = Conv1D(128, kernel_size=5, activation="relu", name="conv1d_6")(norm5)
+    c6 = Conv1D(256, kernel_size=5, activation="relu", name="conv1d_6")(norm5)
     # norm6 = BatchNormalization(name="batch_norm_6")(c6)
 
     # mp3 = MaxPooling1D(pool_size=2, strides=2, name="max_pool_3")(norm6)
@@ -85,7 +85,7 @@ def signal_conv(inp):
 
 def aux_mlp(inp, inp_aux):
     con = Concatenate(name="concat_signal_aux")([inp, inp_aux])
-    ds1 = Dense(1024, activation="relu", name="dense_1")(con)
+    ds1 = Dense(512, activation="relu", name="dense_1")(con)
     drop1 = Dropout(rate=0.15, name="drop_1")(ds1)
     return drop1
 
