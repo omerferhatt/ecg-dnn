@@ -68,3 +68,8 @@ model.fit(data_generator.X_train, data_generator.y_train,
           callbacks=[tensorboard_callback])
 
 model.save("model/logs/{}.h5".format(args.model_file))
+
+loss, acc = model.evaluate(data_generator.X_test, data_generator.y_test, batch_size=1)
+
+print("loss={}".format(loss))
+print("acc=%{}".format(acc))
