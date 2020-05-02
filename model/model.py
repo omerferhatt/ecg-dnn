@@ -43,9 +43,9 @@ def create_model(beat_width=64):
     ds3 = Dense(256, activation="relu", name="dense_3")(drop2)
     drop3 = Dropout(rate=0.20, name="drop_3")(ds3)
     ds4 = Dense(256, activation="relu", name="dense_4")(drop3)
-    drop4 = Dropout(rate=0.22, name="drop_3")(ds4)
+    drop4 = Dropout(rate=0.22, name="drop_4")(ds4)
     ds5 = Dense(128, activation="relu", name="dense_5")(drop4)
-    drop5 = Dropout(rate=0.25, name="drop_4")(ds5)
+    drop5 = Dropout(rate=0.25, name="drop_5")(ds5)
     out_ds6 = Dense(19, activation="softmax", name="output_dense_6")(drop5)
 
     model = Model(inputs=[inp_signal, inp_aux], outputs=out_ds6, name="ecg_model")
