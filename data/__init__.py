@@ -20,6 +20,9 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #  SOFTWARE.
 
+from data import *
+
+
 beat_annots = {"N": "Normal beat",
                "L": "Left bundle branch block beat",
                "R": "Right bundle branch block beat",

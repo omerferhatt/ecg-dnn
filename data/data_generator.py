@@ -31,26 +31,48 @@ from data import beat_annots, non_beat_annots
 
 
 class DatasetGenerator:
-    def __init__(self, raw_path, annot_path, beat_width, random_seed=0):
+    def __init__(self, raw_path: str, annot_path: str, beat_width: int, train_ratio=0.8, random_seed=0):
+        """
+        Custom dataset generator class for arrhythmia classification
+
+        :param raw_path: Raw data path for `X`
+        :param annot_path: Annotation data path for `y`
+        :param beat_width: Number of samples where beats will be separated
+        :param train_ratio: Train test split ratio for validation
+        :param random_seed: Randomising condition
+        """
+
+        self.split_ratio = train_ratio
         self.beat_width = beat_width
         if random_seed == 0:
             self.random_seed = np.random.randint(0, 1000)
         else:
             self.random_seed = random_seed
-
         self.raw_path = raw_path
         self.annot_path = annot_path
+        # Gets .csv files from folders
         self.raw_files, self.annot_files, self.total_patient = self.get_all_csv()
-
+        # Creates margin in case of failure to meet the number of samples required for the beat
         self.margin = (max(self.beat_width, 64) // 64) + 1
-
-        self.raw_data, self.signal_data, self.annot_data, self.rythm_data = self.get_data_to_arr()
+        # Gets data to arrays
+        self.raw_data, self.annot_data, self.aux_data = self.get_data_to_arr()
+        # Randomise data
         self.shuffle_data()
+        # Transpose auxiliary data to get sample to the first column
+        self.aux_data = self.aux_data.T
+        # Split dataset into test and train
+        self.X_train, self.X_test, self.y_train, self.y_test = self.split()
 
     def get_all_csv(self):
+        """
+        Take file names from Raw and Annotation folders
+
+        :return: Raw and Annotation file paths and total patient number
+        """
         try:
             raw_files = glob.glob(os.path.join(self.raw_path, "*"))
             annot_files = glob.glob(os.path.join(self.annot_path, "*"))
+            # Compare number of files
             if len(raw_files) != len(annot_files):
                 raise ValueError
             else:
@@ -84,8 +106,7 @@ class DatasetGenerator:
                     if typ == "+":
                         rythm = aux[1:]
                 if typ in beat_annots:
-                    raw_upper, raw_lower = raw_data[int(sample) - self.beat_width: int(sample) + self.beat_width,
-                                                    1:3].T
+                    raw_upper, raw_lower = raw_data[int(sample) - self.beat_width: int(sample) + self.beat_width, 1:3].T
                     if len(raw_upper) == 2 * self.beat_width:
                         raw_upper_arr.append(raw_upper)
                         raw_lower_arr.append(raw_lower)
@@ -110,25 +131,44 @@ class DatasetGenerator:
         le_rythm = LabelEncoder()
         rythm_arr = le_rythm.fit_transform(np.array(rythm_arr))
 
-        le_upper = LabelEncoder()
-        upper_signal_arr = le_upper.fit_transform(np.array(upper_signal_arr))
+        le_signal = LabelEncoder()
+        le_signal.fit(np.concatenate([np.array(upper_signal_arr), np.array(lower_signal_arr)]))
+        upper_signal_arr = le_signal.transform(np.array(upper_signal_arr))
+        lower_signal_arr = le_signal.transform(np.array(lower_signal_arr))
 
-        le_lower = LabelEncoder()
-        lower_signal_arr = le_lower.fit_transform(np.array(lower_signal_arr))
-
-        return raw_signal, [upper_signal_arr, lower_signal_arr], annot_arr, rythm_arr
+        return raw_signal, annot_arr, np.array([upper_signal_arr, lower_signal_arr, rythm_arr])
 
     def shuffle_data(self):
+        """
+        Randomise all data arrays with random seed if random seed specified.
+
+        :return:
+        """
         np.random.seed(self.random_seed)
         np.random.shuffle(self.raw_data)
         np.random.seed(self.random_seed)
-        np.random.shuffle(self.signal_data)
-        np.random.seed(self.random_seed)
         np.random.shuffle(self.annot_data)
         np.random.seed(self.random_seed)
-        np.random.shuffle(self.rythm_data)
+        np.random.shuffle(self.aux_data)
+
+    def split(self):
+        X_train = [self.raw_data[:int(len(self.raw_data) * self.split_ratio)],
+                   self.aux_data[:int(len(self.aux_data) * self.split_ratio)],]
+        Y_train = self.annot_data[:int(len(self.annot_data) * self.split_ratio)]
+
+        X_test = [self.raw_data[int(len(self.raw_data) * self.split_ratio) + 1:],
+                  self.aux_data[int(len(self.aux_data) * self.split_ratio) + 1:]]
+        Y_test = self.annot_data[int(len(self.annot_data) * self.split_ratio) + 1:]
+
+        return X_train, X_test, Y_train, Y_test
 
     @staticmethod
     def normalize(arr):
+        """
+        Standart normalization for array
+
+        :param arr: Numpy array
+        :return: Normalized numpy array
+        """
         norm_arr = (arr - np.mean(arr)) / np.std(arr)
         return norm_arr
