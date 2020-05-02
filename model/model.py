@@ -59,14 +59,14 @@ def signal_conv(inp):
     c2 = Conv1D(32, kernel_size=9, activation="relu", name="conv1d_2")(norm1)
     norm2 = BatchNormalization(name="batch_norm_2")(c2)
 
-    mp1 = MaxPooling1D(pool_size=2, strides=2, name="max_pool_1")(norm1)
+    mp1 = MaxPooling1D(pool_size=2, strides=2, name="max_pool_1")(norm2)
 
     c3 = Conv1D(64, kernel_size=9, activation="relu", name="conv1d_3")(mp1)
     norm3 = BatchNormalization(name="batch_norm_3")(c3)
     c4 = Conv1D(64, kernel_size=7, activation="relu", name="conv1d_4")(norm3)
     norm4 = BatchNormalization(name="batch_norm_4")(c4)
 
-    mp2 = MaxPooling1D(pool_size=2, strides=2, name="max_pool_2")(norm3)
+    mp2 = MaxPooling1D(pool_size=2, strides=2, name="max_pool_2")(norm4)
 
     c5 = Conv1D(128, kernel_size=7, activation="relu", name="conv1d_5")(mp2)
     norm5 = BatchNormalization(name="batch_norm_5")(c5)

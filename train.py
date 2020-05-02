@@ -64,7 +64,7 @@ tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=args.log_dir, hist
 
 LR_SCHEDULE = [
     # (epoch to start, learning rate) tuples
-    (3, 0.001), (7, 0.0005), (11, 0.0002), (15, 0.0001), (18, 0.00005), (22, 0.00002)
+    (4, 0.001), (8, 0.0005), (12, 0.0002), (15, 0.0001)
 ]
 
 
