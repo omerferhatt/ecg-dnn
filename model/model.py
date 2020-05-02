@@ -20,11 +20,13 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #  SOFTWARE.
 
+import tensorflow as tf
 from tensorflow.keras.layers import Conv1D, MaxPooling1D
 from tensorflow.keras.layers import Flatten, Dense, Dropout, BatchNormalization
 from tensorflow.keras.layers import Input, Concatenate
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
+
 
 
 def create_model(beat_width=64):
@@ -76,7 +78,6 @@ def signal_conv(inp):
     norm7 = BatchNormalization(name="batch_norm_7")(c7)
     c8 = Conv1D(512, kernel_size=5, activation="relu", name="conv1d_8")(norm7)
 
-
     f = Flatten(name="flatten_signal")(c8)
     return f
 
@@ -86,3 +87,29 @@ def aux_mlp(inp, inp_aux):
     ds1 = Dense(512, activation="relu", name="dense_1")(con)
     drop1 = Dropout(rate=0.16, name="drop_1")(ds1)
     return drop1
+
+
+class LearningRateScheduler(tf.keras.callbacks.Callback):
+    """
+    Learning rate scheduler which sets the learning rate according to schedule.
+
+    Arguments:
+        schedule: a function that takes an epoch index
+            (integer, indexed from 0) and current learning rate
+            as inputs and returns a new learning rate as output (float).
+    """
+
+    def __init__(self, schedule):
+        super(LearningRateScheduler, self).__init__()
+        self.schedule = schedule
+
+    def on_epoch_begin(self, epoch, logs=None):
+        if not hasattr(self.model.optimizer, 'lr'):
+            raise ValueError('Optimizer must have a "lr" attribute.')
+        # Get the current learning rate from model's optimizer.
+        lr = float(tf.keras.backend.get_value(self.model.optimizer.lr))
+        # Call schedule function to get the scheduled learning rate.
+        scheduled_lr = self.schedule(epoch, lr)
+        # Set the value back to the optimizer before this epoch starts
+        tf.keras.backend.set_value(self.model.optimizer.lr, scheduled_lr)
+        print('\nEpoch %05d: Learning rate is %6.4f.' % (epoch, scheduled_lr))

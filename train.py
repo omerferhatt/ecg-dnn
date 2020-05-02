@@ -20,11 +20,10 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #  SOFTWARE.
 
-import numpy as np
 import tensorflow as tf
 import argparse
 
-from model import model
+from model.model import create_model, LearningRateScheduler
 from data.data_generator import DatasetGenerator
 
 
@@ -53,7 +52,7 @@ BEAT_WIDTH = args.beat_width
 EPOCH = args.epoch
 BATCH_SIZE = args.batch_size
 
-model = model.create_model(beat_width=BEAT_WIDTH)
+model = create_model(beat_width=BEAT_WIDTH)
 model.summary()
 
 data_generator = DatasetGenerator(raw_path=args.raw_path,
@@ -63,9 +62,25 @@ data_generator = DatasetGenerator(raw_path=args.raw_path,
 
 tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=args.log_dir, histogram_freq=1)
 
+LR_SCHEDULE = [
+    # (epoch to start, learning rate) tuples
+    (5, 0.001), (8, 0.0005), (10, 0.0002), (12, 0.0001), (15, 0.00005)
+]
+
+
+def lr_schedule(epoch, lr):
+    """Helper function to retrieve the scheduled learning rate based on epoch."""
+    if epoch < LR_SCHEDULE[0][0] or epoch > LR_SCHEDULE[-1][0]:
+        return lr
+    for i in range(len(LR_SCHEDULE)):
+        if epoch == LR_SCHEDULE[i][0]:
+            return LR_SCHEDULE[i][1]
+    return lr
+
+
 model.fit(data_generator.X_train, data_generator.y_train,
           epochs=EPOCH, batch_size=BATCH_SIZE, validation_split=0.1,
-          callbacks=[tensorboard_callback])
+          callbacks=[tensorboard_callback, LearningRateScheduler(lr_schedule)])
 
 model.save("model/logs/{}.h5".format(args.model_file))
 
