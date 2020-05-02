@@ -22,26 +22,49 @@
 
 import numpy as np
 import tensorflow as tf
+import argparse
 
 from model import model
 from data.data_generator import DatasetGenerator
 
-BEAT_WIDTH = 64
-EPOCH = 10
-BATCH_SIZE = 32
+
+argp = argparse.ArgumentParser()
+argp.add_argument("-r", "--raw-path", type=str, default="data/raw",
+                  help="Raw signal path.")
+argp.add_argument("-a", "--annot-path", type=str, default="data/annotations/csv",
+                  help="Path of signal annotations.")
+argp.add_argument("-b", "--batch-size", type=int, default=64,
+                  help="Number of batch size.")
+argp.add_argument("-e", "--epoch", type=int, default=15,
+                  help="Number of epoch.")
+argp.add_argument("-B", "--beat-width", type=int, default=64,
+                  help="Sample number of one beat.")
+argp.add_argument("-R", "--random-seed", type=int, default=5,
+                  help="Enter `0` for non-random arrays.")
+argp.add_argument("-l", "--log-dir", type=str, default="model/logs",
+                  help="Folder to save TensorBoard files.")
+argp.add_argument("-m", "--model-file", type=str, default="model",
+                  help="Name of the *.h5 file.")
+
+args = argp.parse_args()
+
+
+BEAT_WIDTH = args.beat_width
+EPOCH = args.epoch
+BATCH_SIZE = args.batch_size
 
 model = model.create_model(beat_width=BEAT_WIDTH)
 model.summary()
 
-data_generator = DatasetGenerator(raw_path="data/raw",
-                                  annot_path="data/annotations/csv",
+data_generator = DatasetGenerator(raw_path=args.raw_path,
+                                  annot_path=args.annot_path,
                                   beat_width=BEAT_WIDTH,
-                                  random_seed=50)
+                                  random_seed=args.random_seed)
 
-tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="model/logs", histogram_freq=1)
+tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=args.log_dir, histogram_freq=1)
 
 model.fit(data_generator.X_train, data_generator.y_train,
           epochs=EPOCH, batch_size=BATCH_SIZE, validation_split=0.1,
           callbacks=[tensorboard_callback])
 
-model.save("model/logs/model2withtest.h5")
+model.save("model/logs/{}.h5".format(args.model_file))

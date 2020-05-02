@@ -14,3 +14,4 @@ data/__pycache__/
 model/__pycache__/
 model/logs/
 model/trained_models/
+.idea/workspace.xml
