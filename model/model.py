@@ -47,7 +47,7 @@ def create_model(beat_width=64):
     out_ds5 = Dense(19, activation="softmax", name="output_dense_5")(drop4)
 
     model = Model(inputs=[inp_signal, inp_aux], outputs=out_ds5, name="ecg_model")
-    opt = Adam(0.002, beta_1=0.9999, beta_2=0.5)
+    opt = Adam(0.002, beta_1=0.5, beta_2=0.999)
     model.compile(optimizer=opt, loss="sparse_categorical_crossentropy", metrics=["accuracy"])
     return model
 
