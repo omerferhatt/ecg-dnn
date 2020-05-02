@@ -32,7 +32,7 @@ def create_model(beat_width=64):
 
     flatten = signal_conv(inp_signal)
 
-    inp_aux = Input(shape=(3,), name="input_aux")
+    inp_aux = Input(shape=(1,), name="input_aux")
 
     concat_aux = aux_mlp(flatten, inp_aux)
 

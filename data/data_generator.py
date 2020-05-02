@@ -136,7 +136,8 @@ class DatasetGenerator:
         upper_signal_arr = le_signal.transform(np.array(upper_signal_arr))
         lower_signal_arr = le_signal.transform(np.array(lower_signal_arr))
 
-        return raw_signal, annot_arr, np.array([upper_signal_arr, lower_signal_arr, rythm_arr])
+        # return raw_signal, annot_arr, np.array([rythm_arr, upper_signal_arr, lower_signal_arr])
+        return raw_signal, annot_arr, rythm_arr
 
     def shuffle_data(self):
         """
