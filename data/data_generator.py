@@ -26,6 +26,7 @@ import glob
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
 
 from data import beat_annots, non_beat_annots
 
@@ -136,8 +137,8 @@ class DatasetGenerator:
         upper_signal_arr = le_signal.transform(np.array(upper_signal_arr))
         lower_signal_arr = le_signal.transform(np.array(lower_signal_arr))
 
-        # return raw_signal, annot_arr, np.array([rythm_arr, upper_signal_arr, lower_signal_arr])
-        return raw_signal, annot_arr, rythm_arr
+        return raw_signal, annot_arr, np.array([rythm_arr, upper_signal_arr, lower_signal_arr])
+        # return raw_signal, annot_arr, rythm_arr
 
     def shuffle_data(self):
         """
