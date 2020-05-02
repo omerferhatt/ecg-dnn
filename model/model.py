@@ -39,16 +39,23 @@ def create_model(beat_width=64):
     concat_aux = aux_mlp(flatten, inp_aux)
 
     ds2 = Dense(512, activation="relu", name="dense_2")(concat_aux)
-    drop2 = Dropout(rate=0.17, name="drop_2")(ds2)
+    drop2 = Dropout(rate=0.15, name="drop_2")(ds2)
     ds3 = Dense(256, activation="relu", name="dense_3")(drop2)
-    drop3 = Dropout(rate=0.20, name="drop_3")(ds3)
+    drop3 = Dropout(rate=0.15, name="drop_3")(ds3)
     ds4 = Dense(256, activation="relu", name="dense_4")(drop3)
-    drop4 = Dropout(rate=0.22, name="drop_4")(ds4)
+    drop4 = Dropout(rate=0.15, name="drop_4")(ds4)
     ds5 = Dense(128, activation="relu", name="dense_5")(drop4)
-    drop5 = Dropout(rate=0.25, name="drop_5")(ds5)
-    out_ds6 = Dense(19, activation="softmax", name="output_dense_6")(drop5)
+    drop5 = Dropout(rate=0.15, name="drop_5")(ds5)
 
-    model = Model(inputs=[inp_signal, inp_aux], outputs=out_ds6, name="ecg_model")
+    ds6 = Dense(128, activation="relu", name="dense_6")(drop5)
+    drop6 = Dropout(rate=0.15, name="drop_6")(ds6)
+    ds7 = Dense(64, activation="relu", name="dense_7")(drop6)
+    drop7 = Dropout(rate=0.15, name="drop_7")(ds7)
+    ds8 = Dense(32, activation="relu", name="dense_8")(drop7)
+
+    out_ds9 = Dense(19, activation="softmax", name="output_dense_9")(ds8)
+
+    model = Model(inputs=[inp_signal, inp_aux], outputs=out_ds9, name="ecg_model")
     opt = Adam(0.002, beta_1=0.5, beta_2=0.999)
     model.compile(optimizer=opt, loss="sparse_categorical_crossentropy", metrics=["accuracy"])
     return model
